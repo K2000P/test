@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>HTML</title>
+		<meta name="description" content="">
+		<meta name="author" content="pammi">
+		<meta name="viewport" content="width=device-width; initial-scale=1.0">
+		<style>
+			.phoneNum{
+				color:green;font:.8em italic;padding-left:3em;
+			}
+			.inactive{
+				background-color:silver;border:2px solid red;
+			}
+
+		</style>
+		<link rel="stylesheet" href="jquery.mobile-1.4.5.min.css" />
+		<link rel="stylesheet" href="jquery.mobile.structure-1.4.5.min.css" />
+
+
+<script src="jquery-1.11.1.js"></script>
+
+
+		<script>
+		$(function(){
+			var contacts=[];
+			var selectId,i=0;
+			$("#page3").on("pagebeforeshow",function(){
+			$("#eName").attr('disabled',true).addClass('inactive');
+			$("#eTel").attr('disabled',true).addClass('inactive');
+			$("#save").attr('disabled',true).addClass('inactive');
+			$("#editsave").text("Edit");
+			});
+			var ct=0;
+			function displayItem(){
+				$("#eName").val($(this).find('span.contactName').text());
+					$("#eName").data('li',$(this).attr('id'));
+					alert($("#eName").data('li'));
+					$("#eTel").val($(this).find('span.phoneNum').text());
+			}
+			function callName(){
+				$(this).find('a').attr('href','tel:'+$("#tel").val());
+			}
+			$("#submit").click(function(){
+				var myContact=new Object();
+				var n=$("#name").val();
+				var t=$("#tel").val();
+				myContact.name=n;
+				myContact.tel=t;
+				contacts.push(myContact);
+				i++;
+				ct=ct+1;
+				localStorage.contacts=JSON.stringify(contacts);
+				$("#contacts").append('<li id="'+ct+'"><a href="#"><span class="contactName">'+n+'</span><span class="phoneNum">'+t+'</span></a></li>');
+				$('#contacts').on("swipe",'li',callName);
+				$('#contacts').on("taphold",'li',displayItem);
+
+				$( "#contacts" ).listview("refresh");
+			});
+			$("#editsave").click(function(){
+
+				if($(this).html()==="Edit"){
+				$(this).html("Save");
+				$("#eName").removeAttr('disabled').removeClass('inactive').focus();
+				$("#eTel").removeAttr('disabled').removeClass('inactive');
+				}else {
+					$(this).html("Edit");
+					var id=$("#eName").data('li');
+					var listItem=$("#page1").find("ul").find("li").eq(id);
+					alert("List item "+id+"  :  "+listItem.html());
+				$('li#'+id).find('span.contactName').text($("#eName").val());
+				$('li#'+id).find('span.phoneNum').text($("#eTel").val());
+				listItem.find('span.contactName').text($("#eName").val());
+				listItem.find('span.phoneNum').text($("#eTel").val());
+				contacts[id].name=$("#eName").val();
+				contacts[id].tel=$("#eTel").val();
+					localStorage.contacts=JSON.stringify(contacts);
+				alert("Changed List item "+id+"  :  "+listItem.html());
+					$("#contacts li").eq(id).find('span.contactName').text($("#eName").val());
+				$("#contacts li").eq(id).find('span.phoneNum').text($("#eTel").val());
+				$("li#0").css("color","red");
+				$("#contacts").listview("refresh");
+
+					$("#eName").attr('disabled',true).addClass('inactive');
+				$("#eTel").attr('disabled',true).addClass('inactive');
+				$( "#contacts" ).listview("refresh");
+
+				}
+
+			});
+			$("#page1").on("pagebeforeshow",function(){
+				$("#contacts").html("");
+				if(localStorage.contacts!=undefined){
+						contacts=JSON.parse(localStorage.contacts);
+				}
+				for(var i=0;i<contacts.length;i++){
+						$("#contacts").append('<li id="'+i+'"><a href="#page3"><span class="contactName">'+contacts[i].name+'</span><span class="phoneNum">'+contacts[i].tel+'</span></a></li>');
+					}
+					$('#contacts').on("tap",'li',callName);
+					$('#contacts').on("taphold",'li',displayItem);
+					$( "#contacts" ).listview("refresh");
+
+			});
+			});
+
+		</script>
+
+		<script src="jquery.mobile-1.4.5.min.js"></script>
+
+		</head>
+		<body>
+			<div data-role="page" id="page1">
+			<div data-role="header"><h2>My Contacts</h2><a href="#page2" data-role="button" data-icon="plus" id="add">Add contact</a></div>
+			<div data-role="content" class="ui-content">
+				<ul id="contacts" data-role="listview"></ul>
+
+			</div>
+			<div data-role="footer" data-position="fixed"></div>
+
+			</div>
+			<div data-role="page" id="page2">
+
+				<div data-role="header"><a href="#page1" data-role="button">Back</a><h2></h2></div>
+				<div data-role="content" class="ui-content">
+					<div data-role="fieldcontain">
+					<label for="name">Name </label>
+					<input type="text" name="name" id="name">
+					</div>
+					<div data-role="fieldcontain">
+						<label for="tel">Telephone</label>
+					<input type="tel" name="tel" id="tel">
+					</div>
+					<a href="#page1" data-role="button" id="submit">Add contact</a>
+					</div>
+
+
+				</div>
+				<div data-role="page" id="page3">
+
+				<div data-role="header"><a href="#page1" data-role="button" data-theme="b">Back to contacts</a></div>
+				<div data-role="content" class="ui-content">
+					<br><div data-role="fieldcontain">
+					<label for="name">Name </label>
+					<input type="text" name="name" id="eName" data-li="0">
+					</div>
+					<div data-role="fieldcontain">
+						<label for="tel">Telephone</label>
+					<input type="tel" name="tel" id="eTel" data-li="0">
+					</div>
+					<a href="#" data-role="button" id="editsave" data-inset="true"></a>
+				</div>
+
+				</div>
+
+
+
+
+		</body>
+		</html>
